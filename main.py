@@ -41,9 +41,12 @@ def parsed_path(document):
     """
     path_list = list()
     for data in document.find_all('a'):
-        path_link = data["href"]
-        if path_link.startswith("/") and path_link not in path_list:
-            path_list.append(path_link)
+        try:
+            path_link = data["href"]
+            if path_link.startswith("/") and path_link not in path_list:
+                path_list.append(path_link)
+        except KeyError:
+            pass
     return path_list
 
 
@@ -89,20 +92,18 @@ def collect(session, domain, path_list=None, i=0):
 def output_csv(data):
     """Записывает данные в csv.
     :param data: Данные.
-    :return: ...потому что хочу.
     """
     with open(getcwd()+"/"+'result.csv', 'w') as csv:
         csv.write("url, status_code, php_error\n")
         for key, value in data.items():
             status, php_error = value[0], value[1]
             csv.write(f"{str(key)}, {str(status)}, {str(php_error)}\n")
-    return True
 
 
 def interface():
     """Интерфейс для управления.
     """
-    domain = input("Введите URL (http(s)://example.ru/):")
+    domain = input("Введите URL в формате http(s)://example.ru/:")
     collect(create_session(), domain)
 
     output_csv(DATA)
